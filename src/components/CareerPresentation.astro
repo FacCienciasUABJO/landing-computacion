@@ -1,0 +1,166 @@
+---
+import InfoCard from './InfoCard.astro';
+import SectionHeading from './SectionHeading.astro';
+import { site } from '../data/site';
+---
+
+<section id="carrera" class="section section--surface">
+  <div class="container">
+    <SectionHeading
+      eyebrow="La carrera"
+      title="Computación con base científica y sentido social"
+      lead="Una formación que articula fundamentos matemáticos, desarrollo de software, datos, redes e inteligencia artificial."
+    />
+
+    <div class="career__layout">
+      <blockquote class="career__quote" cite={site.officialUrl}>
+        <p>{site.profileQuote}</p>
+        <footer>
+          Fuente:
+          <a href={site.officialUrl}>
+            Facultad de Ciencias, Licenciatura en Computación
+          </a>
+        </footer>
+      </blockquote>
+
+      <aside class="career__fact-card" aria-labelledby="ficha-title">
+        <h3 id="ficha-title">Ficha institucional</h3>
+        <dl class="career__facts">
+          <div>
+            <dt>Grado</dt>
+            <dd>{site.degree}</dd>
+          </div>
+          <div>
+            <dt>Dependencia</dt>
+            <dd>{site.faculty}</dd>
+          </div>
+          <div>
+            <dt>Ubicación</dt>
+            <dd>Oaxaca de Juárez, Oaxaca</dd>
+          </div>
+          <div>
+            <dt>Contacto</dt>
+            <dd>
+              <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+            </dd>
+          </div>
+        </dl>
+        <p class="career__fact-note">
+          Datos publicados por la Facultad de Ciencias.
+        </p>
+      </aside>
+    </div>
+
+    <div id="perfil" class="career__cards">
+      <InfoCard title="Perfil de ingreso" items={site.ingress} />
+      <InfoCard
+        title="Campo laboral"
+        items={site.field.slice(0, 3)}
+        note="Listado completo en la sección Campo laboral."
+        link={{ label: 'Ver campo laboral', href: '#campo-laboral' }}
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .career__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  .career__quote {
+    margin: 0;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 1rem 1rem 0;
+    background: var(--color-bg);
+  }
+
+  .career__quote p {
+    margin: 0;
+    color: var(--color-primary-deep);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    line-height: 1.55;
+  }
+
+  .career__quote footer {
+    margin-top: 1rem;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .career__fact-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: var(--color-primary-deep);
+    color: var(--color-on-dark);
+  }
+
+  .career__fact-card h3 {
+    margin: 0 0 1rem;
+    color: #ffffff;
+    font-size: 1rem;
+  }
+
+  .career__facts {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .career__facts dt {
+    color: var(--color-accent-soft);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .career__facts dd {
+    margin: 0.25rem 0 0;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .career__facts a {
+    color: #ffffff;
+  }
+
+  .career__facts a:hover {
+    color: var(--color-accent);
+  }
+
+  .career__facts a:focus-visible {
+    outline-color: var(--color-accent);
+  }
+
+  .career__fact-note {
+    margin: 1.25rem 0 0;
+    color: var(--color-accent-soft);
+    font-size: 0.75rem;
+  }
+
+  .career__cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    scroll-margin-top: 6rem;
+  }
+
+  @media (max-width: 900px) {
+    .career__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .career__cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

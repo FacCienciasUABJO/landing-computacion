@@ -1,0 +1,55 @@
+---
+import MediaCarousel from './MediaCarousel.astro';
+import SectionHeading from './SectionHeading.astro';
+import banner from '../assets/galeria/banner-semana-academica.jpg';
+import conferenceCyber from '../assets/galeria/conferencia-ciberseguridad.jpg';
+import conference from '../assets/galeria/conferencia.jpg';
+import inauguration from '../assets/galeria/inauguracion.jpg';
+import danzon from '../assets/galeria/danzon.jpg';
+
+const slides = [
+  {
+    src: banner,
+    alt: 'Cartel de la Semana Académica, Cultural y Deportiva de la Licenciatura en Computación.',
+    label: 'Cartel de la Semana Académica',
+    widths: [400, 800, 1000],
+  },
+  {
+    src: conferenceCyber,
+    alt: 'Personas sentadas en un aula frente a una presentación sobre ciberseguridad.',
+    label: 'Presentación sobre ciberseguridad',
+    widths: [400, 800, 1200],
+  },
+  {
+    src: conference,
+    alt: 'Persona con micrófono dirigiéndose a un grupo de asistentes sentados en un aula.',
+    label: 'Conferencia con audiencia',
+    widths: [400, 800, 1200],
+  },
+  {
+    src: inauguration,
+    alt: 'Personas sentadas en una mesa de panel frente a una audiencia, con una proyección al fondo.',
+    label: 'Panel con audiencia',
+    widths: [400, 800, 1200],
+  },
+  {
+    src: danzon,
+    alt: 'Grupo de personas vestidas formalmente sobre un escenario, con una persona hablando por micrófono.',
+    label: 'Grupo en un escenario',
+    widths: [400, 800, 1200],
+  },
+];
+---
+
+<section id="galeria" class="section">
+  <div class="container">
+    <SectionHeading title="Eventos realizados en la Licenciatura" />
+    <MediaCarousel
+      slides={slides}
+      label="Eventos realizados en la Licenciatura"
+      aspectRatio="4 / 3"
+      autoplay={true}
+      interval={6000}
+    />
+  </div>
+</section>

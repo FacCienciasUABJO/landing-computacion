@@ -1,0 +1,184 @@
+---
+import { navItems, site } from '../data/site';
+import { withBase } from '../utils/paths';
+---
+
+<footer id="contacto" class="site-footer">
+  <div class="container">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <span class="site-footer__logo">
+          <img
+            src={withBase('/logos/licenciatura-computacion.png')}
+            alt="Logotipo de la Licenciatura en Computación"
+            width="120"
+            height="121"
+            loading="lazy"
+          />
+        </span>
+        <p>
+          {site.faculty}<br />
+          {site.university}
+        </p>
+      </div>
+
+      <nav class="site-footer__nav" aria-label="Navegación del pie">
+        <p class="site-footer__label">Navegación</p>
+        <ul>
+          {navItems.map((item) => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="site-footer__contact">
+        <p class="site-footer__label">Contacto</p>
+        <address>
+          <span>{site.contact.address}</span>
+          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+        </address>
+
+        <p class="site-footer__label site-footer__label--social">Redes</p>
+        <ul class="site-footer__social">
+          {site.social.map((link) => (
+            <li><a href={link.href}>{link.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>
+        Sitio informativo. Consulta la información vigente en los canales
+        oficiales de la UABJO.
+      </p>
+      <a href={site.facultyUrl}>ciencias.uabjo.mx</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: clamp(3rem, 6vw, 4.5rem) 1.5rem;
+    background: var(--color-primary-deep);
+    color: var(--color-on-dark);
+  }
+
+  .site-footer a {
+    color: #ffffff;
+    text-decoration-color: rgb(255 255 255 / 40%);
+    text-underline-offset: 0.2em;
+  }
+
+  .site-footer a:hover {
+    color: var(--color-accent);
+  }
+
+  .site-footer a:focus-visible {
+    outline-color: var(--color-accent);
+  }
+
+  .site-footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .site-footer__logo {
+    display: inline-flex;
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+    background: #ffffff;
+  }
+
+  .site-footer__logo img {
+    width: 7.5rem;
+    height: auto;
+  }
+
+  .site-footer__brand p {
+    max-width: 22rem;
+    margin: 0;
+    color: var(--color-on-dark);
+    font-size: 0.9rem;
+  }
+
+  .site-footer__label {
+    margin: 0 0 0.75rem;
+    color: var(--color-accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .site-footer__label--social {
+    margin-top: 1.5rem;
+  }
+
+  .site-footer__nav ul,
+  .site-footer__social {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__nav a,
+  .site-footer__social a {
+    font-size: 0.875rem;
+  }
+
+  .site-footer__contact address {
+    display: grid;
+    gap: 0.5rem;
+    color: var(--color-on-dark);
+    font-size: 0.875rem;
+    font-style: normal;
+  }
+
+  .site-footer__contact address span {
+    display: block;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(255 255 255 / 16%);
+    color: var(--color-accent-soft);
+    font-size: 0.75rem;
+  }
+
+  .site-footer__bottom p {
+    max-width: 60ch;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .site-footer__top {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .site-footer__top {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

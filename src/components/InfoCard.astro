@@ -1,0 +1,101 @@
+---
+interface Props {
+  title: string;
+  items: readonly string[];
+  note?: string;
+  eyebrow?: string;
+  tone?: 'default' | 'institutional' | 'context';
+  link?: { label: string; href: string };
+}
+
+const {
+  title,
+  items,
+  note,
+  eyebrow,
+  tone = 'default',
+  link,
+} = Astro.props;
+---
+
+<article class:list={['info-card', `info-card--${tone}`]}>
+  {eyebrow && <p class="info-card__eyebrow">{eyebrow}</p>}
+  <h3>{title}</h3>
+  <ul>
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+  {note && <p class="info-card__note">{note}</p>}
+  {link && (
+    <a class="info-card__link" href={link.href}>{link.label}</a>
+  )}
+</article>
+
+<style>
+  .info-card {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-bg);
+  }
+
+  .info-card--institutional {
+    border-top: 4px solid var(--color-primary);
+  }
+
+  .info-card--context {
+    border-top: 4px solid var(--color-accent);
+  }
+
+  .info-card__eyebrow {
+    margin: 0 0 0.4rem;
+    color: var(--color-secondary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .info-card h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+  }
+
+  .info-card ul {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .info-card li {
+    position: relative;
+    padding-left: 1.25rem;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .info-card li::before {
+    position: absolute;
+    top: 0.55em;
+    left: 0;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    content: "";
+  }
+
+  .info-card__note {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+  }
+
+  .info-card__link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+</style>

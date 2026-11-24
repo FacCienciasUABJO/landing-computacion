@@ -1,0 +1,479 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Slide {
+  src: ImageMetadata;
+  alt: string;
+  label: string;
+  widths?: number[];
+}
+
+interface Props {
+  slides: readonly Slide[];
+  label: string;
+  aspectRatio?: string;
+  autoplay?: boolean;
+  interval?: number;
+}
+
+const {
+  slides,
+  label,
+  aspectRatio = '16 / 10',
+  autoplay = false,
+  interval = 6000,
+} = Astro.props;
+const first = slides[0];
+---
+
+<div
+  class="carousel"
+  role="region"
+  aria-roledescription="carrusel"
+  aria-label={label}
+  data-carousel
+  data-enhanced="false"
+  data-autoplay={autoplay ? 'true' : 'false'}
+  data-interval={interval}
+  style={`--carousel-aspect: ${aspectRatio};`}
+>
+  <div class="carousel__viewport">
+    {slides.map((slide, index) => (
+      <figure
+        class="carousel__slide"
+        data-carousel-slide
+        data-label={slide.label}
+        data-active={index === 0 ? 'true' : 'false'}
+        role="group"
+        aria-roledescription="diapositiva"
+        aria-label={`${index + 1} de ${slides.length}: ${slide.label}`}
+      >
+        <Image
+          class="carousel__image"
+          src={slide.src}
+          alt={slide.alt}
+          widths={slide.widths ?? [400, 800, 1200]}
+          sizes="(max-width: 1240px) 100vw, 1200px"
+          format="webp"
+          quality={80}
+          loading={index === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      </figure>
+    ))}
+  </div>
+
+  <div class="carousel__controls">
+    <button
+      class="carousel__button"
+      type="button"
+      data-carousel-prev
+      aria-label="Imagen anterior"
+    >
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M15 6l-6 6 6 6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <div class="carousel__dots" role="group" aria-label="Seleccionar imagen">
+      {slides.map((slide, index) => (
+        <button
+          class="carousel__dot"
+          type="button"
+          data-carousel-dot
+          aria-label={`Ver ${slide.label}`}
+          aria-current={index === 0 ? 'true' : undefined}
+        >
+          <span class="carousel__dot-mark" aria-hidden="true"></span>
+        </button>
+      ))}
+    </div>
+
+    <button
+      class="carousel__button"
+      type="button"
+      data-carousel-next
+      aria-label="Imagen siguiente"
+    >
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M9 6l6 6-6 6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    {autoplay && (
+      <button
+        class="carousel__autoplay"
+        type="button"
+        data-carousel-autoplay
+      >
+        Pausar
+      </button>
+    )}
+  </div>
+
+  <p
+    class="sr-only"
+    aria-live={autoplay ? 'off' : 'polite'}
+    aria-atomic="true"
+    data-carousel-status
+  >
+    Imagen 1 de {slides.length}: {first?.label}
+  </p>
+</div>
+
+<script>
+  const carousels = document.querySelectorAll<HTMLElement>('[data-carousel]');
+
+  carousels.forEach((carousel) => {
+    if (carousel.dataset.initialized === 'true') return;
+    carousel.dataset.initialized = 'true';
+
+    const slides = [
+      ...carousel.querySelectorAll<HTMLElement>('[data-carousel-slide]'),
+    ];
+
+    if (slides.length === 0) return;
+
+    const dots = [
+      ...carousel.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]'),
+    ];
+    const previous = carousel.querySelector<HTMLButtonElement>(
+      '[data-carousel-prev]',
+    );
+    const next = carousel.querySelector<HTMLButtonElement>(
+      '[data-carousel-next]',
+    );
+    const autoplayButton = carousel.querySelector<HTMLButtonElement>(
+      '[data-carousel-autoplay]',
+    );
+    const status = carousel.querySelector<HTMLElement>(
+      '[data-carousel-status]',
+    );
+    const autoplay = carousel.dataset.autoplay === 'true';
+    const interval = Number(carousel.dataset.interval ?? 6000);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let current = 0;
+    let visible = false;
+    let paused = autoplay && reduceMotion.matches;
+    let interacting = false;
+    let timer: number | undefined;
+
+    const setLive = (polite: boolean) => {
+      status?.setAttribute('aria-live', polite ? 'polite' : 'off');
+    };
+
+    const updateAutoplayLabel = () => {
+      if (!autoplayButton) return;
+
+      autoplayButton.textContent = paused ? 'Reproducir' : 'Pausar';
+      autoplayButton.setAttribute(
+        'aria-label',
+        paused
+          ? 'Reanudar reproducción automática'
+          : 'Pausar reproducción automática',
+      );
+    };
+
+    const applyState = () => {
+      slides.forEach((slide, slideIndex) => {
+        const active = slideIndex === current;
+        slide.dataset.active = String(active);
+        slide.setAttribute('aria-hidden', String(!active));
+      });
+
+      dots.forEach((dot, dotIndex) => {
+        if (dotIndex === current) {
+          dot.setAttribute('aria-current', 'true');
+        } else {
+          dot.removeAttribute('aria-current');
+        }
+      });
+
+      if (status) {
+        status.textContent = `Imagen ${current + 1} de ${slides.length}: ${slides[current]?.dataset.label ?? ''}`;
+      }
+    };
+
+    const render = () => {
+      applyState();
+      updateAutoplayLabel();
+      setLive(Boolean(!autoplay || paused || interacting));
+    };
+
+    const stop = () => {
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+    };
+
+    const start = () => {
+      stop();
+
+      if (!autoplay || paused || interacting || !visible || document.hidden) {
+        return;
+      }
+
+      timer = window.setInterval(() => {
+        current = (current + 1) % slides.length;
+        render();
+      }, interval);
+    };
+
+    const goTo = (index: number) => {
+      current = (index + slides.length) % slides.length;
+      render();
+      start();
+    };
+
+    previous?.addEventListener('click', () => goTo(current - 1));
+    next?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => goTo(index));
+    });
+
+    autoplayButton?.addEventListener('click', () => {
+      paused = !paused;
+      render();
+      start();
+    });
+
+    carousel.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goTo(current - 1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goTo(current + 1);
+      }
+    });
+
+    carousel.addEventListener('mouseenter', () => {
+      interacting = true;
+      stop();
+      render();
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+      interacting = false;
+      start();
+      render();
+    });
+
+    carousel.addEventListener('focusin', () => {
+      interacting = true;
+      stop();
+      render();
+    });
+
+    carousel.addEventListener('focusout', (event) => {
+      if (
+        !carousel.contains(event.relatedTarget as Node) &&
+        !carousel.matches(':hover')
+      ) {
+        interacting = false;
+        start();
+        render();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        start();
+      }
+    });
+
+    reduceMotion.addEventListener('change', (event) => {
+      if (event.matches) {
+        paused = true;
+        render();
+        start();
+      }
+    });
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          visible = entries[0]?.isIntersecting ?? false;
+          if (visible) {
+            start();
+          } else {
+            stop();
+          }
+        },
+        { threshold: 0.25 },
+      );
+
+      observer.observe(carousel);
+    } else {
+      visible = true;
+      start();
+    }
+
+    carousel.dataset.enhanced = 'true';
+    goTo(0);
+  });
+</script>
+
+<style>
+  .carousel__viewport {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .carousel[data-enhanced="true"] .carousel__viewport {
+    position: relative;
+    display: block;
+    aspect-ratio: var(--carousel-aspect, 16 / 10);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-bg);
+  }
+
+  .carousel__slide {
+    margin: 0;
+  }
+
+  .carousel__image {
+    width: 100%;
+    height: auto;
+  }
+
+  .carousel[data-enhanced="true"] .carousel__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 180ms ease;
+  }
+
+  .carousel[data-enhanced="true"] .carousel__slide[data-active="true"] {
+    z-index: 1;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .carousel[data-enhanced="true"] .carousel__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .carousel[data-enhanced="false"] .carousel__controls,
+  .carousel[data-enhanced="false"] .carousel__dots {
+    display: none;
+  }
+
+  .carousel__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .carousel__button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-bg);
+    color: var(--color-primary-deep);
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .carousel__button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .carousel__button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .carousel__dots {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .carousel__dot {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .carousel__dot-mark {
+    display: block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 1px solid var(--color-secondary);
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .carousel__dot[aria-current="true"] .carousel__dot-mark {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+  }
+
+  .carousel__dot:hover .carousel__dot-mark {
+    border-color: var(--color-primary);
+  }
+
+  .carousel__autoplay {
+    min-height: 44px;
+    padding: 0 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-primary-deep);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .carousel__autoplay:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel[data-enhanced="true"] .carousel__slide,
+    .carousel__button,
+    .carousel__autoplay {
+      transition: none;
+    }
+  }
+</style>

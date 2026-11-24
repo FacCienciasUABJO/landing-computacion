@@ -1,0 +1,58 @@
+---
+import InfoCard from './InfoCard.astro';
+import SectionHeading from './SectionHeading.astro';
+import { site } from '../data/site';
+---
+
+<section id="campo-laboral" class="section section--surface">
+  <div class="container">
+    <SectionHeading
+      eyebrow="Campo laboral"
+      title="Salidas profesionales y contexto del área"
+      lead="La Facultad declara sectores de desempeño; el área de Computación también ofrece ámbitos generales. Son dos niveles de formación distintos."
+    />
+
+    <div class="field__grid">
+      <InfoCard
+        eyebrow="Declarado por la Facultad"
+        title="Sectores de desempeño"
+        items={site.field}
+        note="Listado declarado por la Facultad."
+        tone="institutional"
+      />
+      <InfoCard
+        eyebrow="Contexto general del área"
+        title="Posibilidades generales"
+        items={site.fieldGeneral}
+        note="Panorama general del área de Computación."
+        tone="context"
+      />
+    </div>
+
+    <p class="field__note">
+      <a href={site.officialUrl}>Consultar la ficha oficial de la licenciatura</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .field__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .field__note {
+    max-width: 80ch;
+    margin: 1.5rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 900px) {
+    .field__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

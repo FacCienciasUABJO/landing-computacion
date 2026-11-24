@@ -1,0 +1,39 @@
+---
+import MediaCarousel from './MediaCarousel.astro';
+import mapaCurricular from '../assets/plan/mapa-curricular.png';
+import perfilEgreso from '../assets/plan/perfil-egreso.png';
+
+const slides = [
+  {
+    src: mapaCurricular,
+    alt: 'Mapa curricular de la Licenciatura en Computación por fases y áreas de formación',
+    label: 'Mapa curricular',
+    widths: [400, 800, 960],
+  },
+  {
+    src: perfilEgreso,
+    alt: 'Perfil de egreso y competencias de la Licenciatura en Computación',
+    label: 'Perfil de egreso',
+    widths: [400, 800, 1200],
+  },
+];
+---
+
+<section id="plan" class="section">
+  <div class="container">
+    <header class="plan__heading">
+      <h2>Plan de estudios</h2>
+    </header>
+    <MediaCarousel
+      slides={slides}
+      label="Plan de estudios"
+      aspectRatio="16 / 10"
+    />
+  </div>
+</section>
+
+<style>
+  .plan__heading {
+    margin-bottom: 1.5rem;
+  }
+</style>
